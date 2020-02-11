@@ -1,0 +1,191 @@
+---
+title: "RStudio Cheatsheet"
+author: "Annette Hilton"
+date: "2/11/2020"
+output: html_document
+toc: true
+toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Attach necessary packages 
+
+library(tidyverse)
+library(here)
+library(janitor)
+
+```
+
+# Introduction 
+
+This is a RStudio cheatsheet designed to assist coders as a one-stop reference for basic RStudio functions. 
+
+**Please note:** This document is a work in progress and may contain code that does not run in the cheatsheet. It is designed to be a quick reference, code may be copy/pasted from other projects; in the future, self-contained coding examples may be pursued. 
+
+The cheatsheet is broken down into the following sections (Table of Contents):
+
+- Set global options
+- Helpful packages 
+- Read in Data 
+- Tidy data
+- Sort data
+  - Sort by column 
+  - Create new column/modify column
+  - Sort by row
+- Saving Files/Graphs 
+  - Save to specific pathway
+  - Save file
+  - Save graph
+- Working with Dates
+- Graphs/Visualization 
+- Statistical Tests 
+- Create new data
+- Rmd Tips 
+  - Insert a photo 
+  - Tabs 
+
+# Cheatsheet Main 
+
+## Set global options 
+
+How to set global options for Rmd/Other 
+
+```{r}
+#---------------------------------------------------
+# Set global options
+#---------------------------------------------------
+
+# In top code chunk: knitr::opts_chunk$set(echo = TRUE)
+
+# Do not display messages 
+
+message = FALSE 
+
+# Do not display errors
+
+error = FALSE 
+
+# Do not display warnings 
+
+warning = FALSE 
+
+# No code in final output 
+
+echo = FALSE 
+
+```
+
+## Helpful packages 
+
+```{r}
+#--------------------------------------------------
+# Helpful Packages 
+#--------------------------------------------------
+
+library(tidyverse) # Most basic and helpful! 
+library(janitor) # Helps with cleaning/data tidy 
+library(here) # Specifies where a file is located
+
+```
+
+
+## Read in Data
+
+Read in CSV or TSV files 
+
+```{r}
+#--------------------------------------------------
+# Read in data (csv or tsv)
+#--------------------------------------------------
+
+# Read in csv 
+
+readr::read_csv("file_name")
+
+# Read in csv with specific file path 
+
+readr::read_csv(here::here("folder_name", "file_name")) 
+
+# Read in tsv 
+
+readr::read_tsv("file_name")
+
+```
+
+Read in spatial data 
+
+```{r}
+#-------------------------------------------------
+# Read in shapefile/spatial data 
+#-------------------------------------------------
+
+# Must have package `sf` installed 
+
+read_sf(dsn = here::here("folder_name", "subfolder_name"), layer = "name_of_all_files_name" )
+
+```
+
+
+## Tidy Data
+
+```{r}
+#-------------------------------------------------
+# Basic data tidying
+#-------------------------------------------------
+
+# Tidy column names to all lowercase (pipe into)
+
+example_dataframe <- dataframe_original %>% 
+clean_names() 
+
+# Tidy rows/observations to lowercase 
+# Overwrite column name with lowercase rows with `mutate()` and `str_to_lower()`
+
+example_dataframe <- dataframe_original %>% 
+  mutate(example_column_name = str_to_lower(example_column_name))
+
+```
+
+
+## Sort Data 
+### Sort by column 
+### Create new column/modify column 
+### Sort by row 
+
+```{r}
+
+# Use `filter()` function 
+
+# Filter by string pattern/text (keep)
+
+example_dataframe <- dataframe_original %>% 
+  filter(str_detect(example_column_name, pattern = "example_pattern"))
+
+# Filter by string pattern/text (remove: !) 
+
+example_dataframe <- dataframe_original %>% 
+  filter(!str_detect(example_column_name, pattern = "example_pattern"))
+
+
+
+```
+
+
+## Saving Files/Graphs 
+
+## Working with Dates
+
+## Graphs/Visualization
+
+## Statistical Tests 
+
+## Create new data
+
+## Rmd Tips 
+### Insert photo
+### Tabs 
+### Table of contents 
