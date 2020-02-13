@@ -47,6 +47,7 @@ The cheatsheet is broken down into the following sections (Table of Contents):
 - Rmd Tips 
   - Insert a photo 
   - Tabs 
+- Shiny Apps
 
 # Cheatsheet Main 
 
@@ -76,6 +77,10 @@ warning = FALSE
 # No code in final output 
 
 echo = FALSE 
+
+# Disable scientific notation 
+
+options(scipen=999)
 
 ```
 
@@ -159,6 +164,11 @@ example_dataframe <- dataframe_original %>%
 ```{r}
 
 # Use `filter()` function 
+# Note: Other `filter()` options exist, such as: 
+
+filter_all()
+filter_if()
+filter_at()
 
 # Filter by string pattern/text (keep)
 
@@ -189,3 +199,5 @@ example_dataframe <- dataframe_original %>%
 ### Insert photo
 ### Tabs 
 ### Table of contents 
+
+## Shiny Apps 
