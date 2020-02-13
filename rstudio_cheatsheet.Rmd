@@ -45,8 +45,10 @@ The cheatsheet is broken down into the following sections (Table of Contents):
 - Statistical Tests 
 - Create new data
 - Rmd Tips 
-  - Insert a photo 
+  - General Formatting 
   - Tabs 
+  - Themes
+  - Insert a photo 
 - Shiny Apps
 
 # Cheatsheet Main 
@@ -153,6 +155,11 @@ clean_names()
 example_dataframe <- dataframe_original %>% 
   mutate(example_column_name = str_to_lower(example_column_name))
 
+# Separate one column into two based on a separator (such as "x.2" or "Jan:1")
+
+example_dataframe <- dataframe_original %>% 
+  separate("example_column_name", c("new_column", "second_new_column"))
+
 ```
 
 
@@ -196,8 +203,57 @@ example_dataframe <- dataframe_original %>%
 ## Create new data
 
 ## Rmd Tips 
+
+### General Formatting 
+
+```{r}
+#---------------------------------------------------------------------------------------
+# General formatting
+#---------------------------------------------------------------------------------------
+
+# Bold, italicized, bold and italicized 
+
+**bold** 
+  
+*italicized* 
+  
+***bold and italicized***
+  
+# Hyperlink word/text 
+  
+[Example of words to hyperlink](https://www.youtube.com/watch?v=BMuknRb7woc)
+  
+```
+
+### Tabs {.tabset}
+
+#### Example of Tab 
+
+#### Second Example of Tab 
+
+### Themes 
+
+```{r}
+# Various themes exist for Rmd
+# To check them out, refer to this:
+
+# https://bookdown.org/yihui/rmarkdown/html-document.html#appearance_and_style
+
+```
+
+
 ### Insert photo
-### Tabs 
+
+```{r}
+# Insert a photo, specify width, center image 
+
+<center> ![](folder_with_images/example_photo.jpg){width=450px} ![](folder_with_images/example_photo.jpg){width=450px} </center>
+  
+```
+
+
+
+
 ### Table of contents 
 
 ## Shiny Apps 
