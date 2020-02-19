@@ -32,10 +32,11 @@ The cheatsheet is broken down into the following sections (Table of Contents):
 - Helpful packages 
 - Read in Data 
 - Tidy data
-- Sort data
+- Sort/Modify data
   - Sort by column 
   - Create new column/modify column
   - Sort by row
+  - Modify/change rows
 - Saving Files/Graphs 
   - Save to specific pathway
   - Save file
@@ -84,6 +85,10 @@ echo = FALSE
 
 options(scipen=999)
 
+# Disable output 
+
+ouput = FALSE 
+
 ```
 
 ## Helpful packages 
@@ -96,6 +101,7 @@ options(scipen=999)
 library(tidyverse) # Most basic and helpful! 
 library(janitor) # Helps with cleaning/data tidy 
 library(here) # Specifies where a file is located
+library(sf) # Must have to read in spatial data 
 
 ```
 
@@ -169,6 +175,9 @@ example_dataframe <- dataframe_original %>%
 ### Sort by row 
 
 ```{r}
+#------------------------------------------------------------------------------------------
+# Sort by row 
+#------------------------------------------------------------------------------------------
 
 # Use `filter()` function 
 # Note: Other `filter()` options exist, such as: 
@@ -188,6 +197,19 @@ example_dataframe <- dataframe_original %>%
   filter(!str_detect(example_column_name, pattern = "example_pattern"))
 
 
+```
+
+### Modify/change rows 
+
+```{r}
+# Add character to row string by `sub()` function 
+
+example_dataframe$example_column <- sub("^", "character_to_add", example_dataframe$example_column)
+
+# Remove character to row string by `gsub()` function 
+# You can add a character in its place or simply use "" to have nothing
+
+example_dataframe$example_column <- gsub("character_to_remove", "character_to_add", example_dataframe$example_column)
 
 ```
 
@@ -197,6 +219,128 @@ example_dataframe <- dataframe_original %>%
 ## Working with Dates
 
 ## Graphs/Visualization
+
+### ggplot 
+
+```{r}
+# ggplot provides nearly endless visualizations and customizations 
+
+# Basic plot 
+# geom_line as an example 
+
+ggplot(data = example_dataframe, 
+       aes(x = x_axis_variable, 
+           y = y_axis_variable, 
+           group = aesthetic_variable_to_group_by)) +
+  geom_line() 
+
+```
+
+Seasonal Plot 
+```{r}
+
+# Seasonal graph (example)
+
+seasonal_plot <- ggplot(data = steelhead_parsed, 
+       aes(x = month, y = total, group = year)) +
+  geom_line(aes(color = year)) +
+  facet_wrap(~ parameter, 
+             ncol = 1, 
+             scales = "free", 
+             strip.position = "right")
+```
+
+```{r}
+# Create line graph of Mono Lake Level from 1850-2017 
+
+# Basic plot 
+
+ggplot(data = mono_annual_levels, 
+       aes(x = year, 
+           y = lake_level_feet_above_sea_level)) +
+  geom_line(aes(color = mycolor), size = 1.9) + # Set to color line conditionally 
+  theme_light() + # Overall theme and customization 
+  theme(legend.position = "none") + # No legend 
+  theme( # Customize specifics
+    text = element_text(family = "Microsoft Tai Le", 
+                        size = 15)) + # Customize text of entire plot, size 
+ 
+# Insert extra lines for Stable Lake Level and Land Bridges Emerge (just the line)
+   geom_hline( 
+    yintercept = 6392, 
+    color = "darkblue", 
+    size = 0.9, 
+    linetype = "dashed") +
+  geom_hline(
+    yintercept = 6377, 
+    color = "darkred", 
+    size = 0.9, 
+    linetype = "dashed") +
+  
+# Limit the axis scale to specific region 
+ scale_x_continuous( 
+    limits = c(1850,2020), 
+    expand = c(0,0)) + 
+  scale_y_continuous(
+    limits = c(6370, 6430), 
+    expand = c(0,0)) +
+  
+# Customize the gridlines 
+  theme(panel.grid.major = element_line(
+    size = 0.5, 
+    linetype = "solid", 
+    color = "lightgray"),
+    panel.grid.minor = element_blank()) +
+  
+# Add axis labels, title, subtitle 
+  labs(x = "Year", 
+       y = "Lake Level above Sea Level (ft)",
+       title = "A HISTORY OF MONO LAKE", 
+       subtitle = "Lake Levels 1850-2017") + 
+
+# Customize the labels (from above) 
+  theme(plot.title = element_text(hjust = 0.5), # Center the title and subtitle 
+        plot.subtitle = element_text(hjust = 0.5)) +
+  
+# Add text on the graph for Stable Lake Level and Land Bridges Emerge and Lake Diversion Begins 1941
+  geom_text(aes(x = 1875, 
+                y = 6393.5, 
+                label = "Stable Lake Level"), 
+            color = "darkblue", 
+            size = 5,
+            family = "Calibri") +
+  geom_text(aes(x = 1925, 
+                y = 6378.5, 
+                label = "Land Bridges Emerge"),
+            color = "darkred", 
+            size = 5,
+            family = "Calibri") +
+  geom_text(aes(x = 1975, 
+                y = 6426, 
+                label = "Lake Diversion Begins in 1941"), 
+            family = "Calibri", size = 4.5) + 
+  annotate("segment", # Add arrow 
+           x = 1975, 
+           xend = 1945, 
+           y = 6425, 
+           yend = 6418, 
+           color = "red", 
+           size = 2, 
+           alpha = 0.6, 
+           arrow = arrow()) +
+  geom_point(aes(x = 1941, # Add red point 
+                 y = 6417), 
+             color = "red",
+             size = 4)
+ 
+```
+
+Disable scientific notation in ggplot 
+```{r}
+# Disable scientific notation of y-axis 
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+
+```
 
 ## Statistical Tests 
 
