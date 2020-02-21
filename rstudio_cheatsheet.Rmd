@@ -102,6 +102,7 @@ library(tidyverse) # Most basic and helpful!
 library(janitor) # Helps with cleaning/data tidy 
 library(here) # Specifies where a file is located
 library(sf) # Must have to read in spatial data 
+library(paletteer) # Amazing resource of so many different types of discrete colors! 
 
 ```
 
@@ -155,6 +156,11 @@ read_sf(dsn = here::here("folder_name", "subfolder_name"), layer = "name_of_all_
 example_dataframe <- dataframe_original %>% 
 clean_names() 
 
+# Rename column names with `rename()`
+
+example_dataframe <- dataframe_original %>% 
+  rename(new_column_name = old_column_name)
+
 # Tidy rows/observations to lowercase 
 # Overwrite column name with lowercase rows with `mutate()` and `str_to_lower()`
 
@@ -171,6 +177,20 @@ example_dataframe <- dataframe_original %>%
 
 ## Sort Data 
 ### Sort by column 
+
+```{r}
+# Sort columns by function `select()`
+
+# Keep columns 
+example_dataframe <- original_dataframe %>% 
+  select(column_to_keep, other_column) 
+
+# Remove columns 
+
+
+
+```
+
 ### Create new column/modify column 
 ### Sort by row 
 
@@ -195,6 +215,10 @@ example_dataframe <- dataframe_original %>%
 
 example_dataframe <- dataframe_original %>% 
   filter(!str_detect(example_column_name, pattern = "example_pattern"))
+
+# Keep top certain number with function `head()` 
+
+# Change/modify row names with function `rownames()` (including from another dataframe) 
 
 
 ```
