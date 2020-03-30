@@ -43,6 +43,7 @@ The cheatsheet is broken down into the following sections (Table of Contents):
   - Save graph
 - Working with Dates
 - Graphs/Visualization 
+- Spatial data 
 - Statistical Tests 
 - Create new data
 - Rmd Tips 
@@ -98,11 +99,49 @@ ouput = FALSE
 # Helpful Packages 
 #--------------------------------------------------
 
+# Basic packages for tidying data, other functions
+
 library(tidyverse) # Most basic and helpful! 
 library(janitor) # Helps with cleaning/data tidy 
 library(here) # Specifies where a file is located
-library(sf) # Must have to read in spatial data 
 library(paletteer) # Amazing resource of so many different types of discrete colors! 
+library(lubridate) # Package for dealing with dates 
+library(plotly)
+
+# Spatial packages 
+
+library(sf) # Must have to read in spatial data 
+library(tmap)
+library(tmaptools)
+library(mapview)
+library(raster)
+
+# Time series packages
+
+library(tsibble)
+library(fable)
+library(fabletools)
+library(feasts)
+library(forecast)
+
+# Text mining packages 
+
+library(pdftools)
+library(tidytext)
+library(textdata)
+library(ggwordcloud)
+
+# Statistical tool packages 
+
+library(gstat)
+library(devtools)
+library(spatstat) # point pattern analysis 
+library(NbClust) # cluster analysis 
+library(cluster) # cluster analysis
+library(factoextra) # cluster analysis 
+library(dendextend) # cluster analysis 
+library(ggdendro) # cluster analysis 
+
 
 ```
 
@@ -130,6 +169,20 @@ readr::read_tsv("file_name")
 
 ```
 
+Read in multiple files at once 
+
+```{r}
+# Read in multiple files at once and merge into one dataframe 
+
+# Create path for multiple files 
+
+example_files = list.files(path = here::here("example_folder", "example_data_name"), pattern = "*.txt", full.names = TRUE)
+
+# Read in all files to one dataframe using list from above and `ldply()`
+
+all_files = ldply(example_files, read_csv)
+```
+
 Read in spatial data 
 
 ```{r}
@@ -146,6 +199,14 @@ read_sf(dsn = here::here("folder_name", "subfolder_name"), layer = "name_of_all_
 
 ## Tidy Data
 
+Basic tidying: 
+
+- Change case (upper case, lower case) of columns or rows 
+- Rename columns 
+- Separate into two columns (based on separator value) 
+- NA values 
+- Arrange 
+
 ```{r}
 #-------------------------------------------------
 # Basic data tidying
@@ -156,27 +217,55 @@ read_sf(dsn = here::here("folder_name", "subfolder_name"), layer = "name_of_all_
 example_dataframe <- dataframe_original %>% 
 clean_names() 
 
-# Rename column names with `rename()`
-
-example_dataframe <- dataframe_original %>% 
-  rename(new_column_name = old_column_name)
-
 # Tidy rows/observations to lowercase 
 # Overwrite column name with lowercase rows with `mutate()` and `str_to_lower()`
 
 example_dataframe <- dataframe_original %>% 
   mutate(example_column_name = str_to_lower(example_column_name))
 
+# Rename column names with `rename()`
+
+example_dataframe <- dataframe_original %>% 
+  rename(new_column_name = old_column_name)
+
 # Separate one column into two based on a separator (such as "x.2" or "Jan:1")
 
 example_dataframe <- dataframe_original %>% 
   separate("example_column_name", c("new_column", "second_new_column"))
+
+# Dealing with NA values 
+
+# If many different type of NA values, create string to indicate values and then replace all (`replace_with_na_all()`)
+
+na_strings <- c("-9999", "-9999.00", "-9999.000", "-9999.0000", "-9999.00000", "-9999.000000")
+
+example_dataframe <- dataframe_original %>% 
+  replace_with_na_all(condition = ~.x %in% na_strings)
+
+# Arrange dataframe with `arrange()`
+
+example_dataframe <- dataframe_original %>% 
+  arrange(column_to_arrange_by)
+
+```
+
+Change character class 
+
+```{r}
+# Change class of column/variables to character or numeric 
+
+example_dataframe$example_column <- as.numeric(example_dataframe$example_column)
+
+example_dataframe$example_column <- as.character(example_dataframe$example_column)
 
 ```
 
 
 ## Sort Data 
 ### Sort by column 
+
+- Keep columns
+- Remove columns 
 
 ```{r}
 # Sort columns by function `select()`
@@ -186,12 +275,82 @@ example_dataframe <- original_dataframe %>%
   select(column_to_keep, other_column) 
 
 # Remove columns 
-
+example_dataframe <- original_dataframe %>% 
+  select(-column_to_remove, -other_column) 
 
 
 ```
 
+### Group by column 
+
+```{r}
+# Group by column/variable using `group_by()`
+# You can group by one column or multiple! 
+
+example_dataframe <- original_dataframe %>% 
+  group_by(column_of_interest) # add another column here to group by multiple 
+
+```
+
 ### Create new column/modify column 
+
+```{r}
+# Create new variables/columns using `mutate()` or `summarise()` 
+
+# `dplyr::summarise()` for summary statistics 
+# Must use `group_by()` to group by column/variable of interest 
+
+example_dataframe <- original_dataframe %>% 
+  group_by(column_of_interest) %>% 
+  dplyr::summarise(
+    min = min(example_column), 
+    max = max(example_column), 
+    quantile = quantile(example_column),
+    mean = mean(example_column), 
+    median = median(example_column), 
+    count = n(example_column), 
+    count_distinct = n_distinct(example_column), 
+    standard_deviation = sd(example_column)
+    )
+
+# `mutate()` for everything else! 
+
+# Duplicate a column (keep everything the same, just rename the column name)
+
+example_dataframe <- original_dataframe %>% 
+  mutate(duplicate_column = original_column)
+
+# Give distinction/label 
+
+example_dataframe <- original_dataframe %>% 
+  mutate(label = "data") 
+
+# Create new columns with math/equations 
+# Use * for multiplication, + for addition, - for substraction, and / for division 
+
+example_dataframe <- original_dataframe %>% 
+  mutate(sum_a_b = column_a + column_b) 
+
+# Use mutate() to summarise/create stats (Example: min/max dates, median value)
+
+example_dataframe <- original_dataframe %>% 
+  group_by(column_of_interest) %>% 
+  mutate(min_date = min(year), 
+         max_date = max(year), 
+         median = median(value))
+
+# `mutate()` and `case_when()` 
+# Use mutate() and case_when() to make conditional statements 
+# You can make these conditional statements complicated 
+
+example_dataframe <- original_dataframe %>% 
+  mutate(new_column = 
+           case_when(example_column > other_column ~"A",
+                     is.na(example_column) ~"B")) 
+
+```
+
+
 ### Sort by row 
 
 ```{r}
@@ -216,9 +375,22 @@ example_dataframe <- dataframe_original %>%
 example_dataframe <- dataframe_original %>% 
   filter(!str_detect(example_column_name, pattern = "example_pattern"))
 
+# Filter by number of observations 
+
+example_dataframe <- dataframe_original %>% 
+  filter(n() > 10) 
+
+# Filter by a date range (example, date range of 20 years) 
+
+example_dataframe <- dataframe_original %>% 
+  filter(maxdate - mindate >= 20)
+
 # Keep top certain number with function `head()` 
 
-# Change/modify row names with function `rownames()` (including from another dataframe) 
+# Only keep unique values in a row with function `distinct()` (removes all repeats, keeps first unique value)
+
+example_dataframe <- dataframe_original %>% 
+  distinct(example_variable, .keep_all = TRUE)
 
 
 ```
@@ -226,6 +398,9 @@ example_dataframe <- dataframe_original %>%
 ### Modify/change rows 
 
 ```{r}
+
+# Change/modify row names with function `rownames()` (including from another dataframe) 
+
 # Add character to row string by `sub()` function 
 
 example_dataframe$example_column <- sub("^", "character_to_add", example_dataframe$example_column)
@@ -237,8 +412,65 @@ example_dataframe$example_column <- gsub("character_to_remove", "character_to_ad
 
 ```
 
+## Dataframes (Joining dataframes, parsing dataframes, transforming dataframes) 
+
+### pivot_longer() and pivot_wider()
+### Join dataframes
+
+There are several types of joins, including: 
+
+  - inner_join()
+  - outer_join()
+  - full_join()
+  - anti_join()
+  - rbind()
+  
+```{r}
+# `inner_join()`
+new_joined_dataframe <- example_dataframe_x %>% 
+  inner_join(example_dataframe_y, by = "variable_to_join_by")
+  
+```
+
+```{r}
+# `rbind()`
+# Use rbind() for a quick join of multiple dataframes into one. Rbind combines vertically: this only works if all dataframes are the same width (same columns) 
+
+all_dataframes <- rbind(dataframe_1, dataframe_2, dataframe_3, dataframe_4)
+
+```
+
+### Parse dataframes 
+
+```{r}
+# Say you have a large dataframe that you want to constrain by certain variables
+
+# Make vector of unique site IDs or other identifying factor that are constrained 
+# Use `pull()` to pull a vector of identifying factor 
+
+constrained_data <- original_dataframe %>% 
+  pull(identifying_variable)
+
+# Use the resulting vector to filter target sites from original dataframe 
+
+constrained_data_final <- original_dataframe %>%
+  filter(identifying_variable %in% c(constrained_data))
+```
+
 
 ## Saving Files/Graphs 
+
+Write files as a TSV or CSV 
+
+```{r}
+
+# Write tsv file 
+write_tsv(file_to_save, here::here("specific_folder", "name_of_file.txt"))
+
+# Write to csv file
+write_csv(file_to_save, here::here("specific_folder", "name_of_file.txt"))
+
+```
 
 ## Working with Dates
 
@@ -366,7 +598,10 @@ Disable scientific notation in ggplot
 
 ```
 
+## Spatial Data 
 ## Statistical Tests 
+
+
 
 ## Create new data
 
@@ -401,14 +636,7 @@ Disable scientific notation in ggplot
 
 ### Themes 
 
-```{r}
-# Various themes exist for Rmd
-# To check them out, refer to this:
-
-# https://bookdown.org/yihui/rmarkdown/html-document.html#appearance_and_style
-
-```
-
+Various themes exist for Rmds. Check them out here: https://bookdown.org/yihui/rmarkdown/html-document.html#appearance_and_style
 
 ### Insert photo
 
@@ -419,9 +647,5 @@ Disable scientific notation in ggplot
   
 ```
 
-
-
-
-### Table of contents 
 
 ## Shiny Apps 
