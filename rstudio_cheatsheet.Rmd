@@ -599,6 +599,17 @@ Disable scientific notation in ggplot
 ```
 
 ## Spatial Data 
+
+Change dataframe to spatial dataframe (Latitude and Longitude) 
+
+```{r}
+# Change dataframe to be recognized as spatial data (latitude and longitude) by using `st_as_sf()`
+# Indicate which columns are latitude and longitude 
+# Indicate coordinate reference system (generic = 4326, may modify to whatever you want) 
+
+example_dataframe_spatial <- st_as_sf(example_dataframe_original, coords = c("longitude_column_name", "latitude_column_name"), crs = 4326)
+```
+
 ## Statistical Tests 
 
 
