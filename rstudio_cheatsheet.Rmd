@@ -107,6 +107,7 @@ library(here) # Specifies where a file is located
 library(paletteer) # Amazing resource of so many different types of discrete colors! 
 library(lubridate) # Package for dealing with dates 
 library(plotly)
+library(plyr) # Be sure to load before tidyverse or dplyr to avoid conflict issues 
 
 # Spatial packages 
 
@@ -236,16 +237,20 @@ example_dataframe <- dataframe_original %>%
 # Dealing with NA values 
 
 # If many different type of NA values, create string to indicate values and then replace all (`replace_with_na_all()`)
+# Warning: this is not an efficient function and will take a long time to run depending on how much data there is 
 
 na_strings <- c("-9999", "-9999.00", "-9999.000", "-9999.0000", "-9999.00000", "-9999.000000")
 
 example_dataframe <- dataframe_original %>% 
   replace_with_na_all(condition = ~.x %in% na_strings)
 
-# Arrange dataframe with `arrange()`
+# Alternative method is to replace them when reading in data, if you know in advance what the NAs are
 
-example_dataframe <- dataframe_original %>% 
-  arrange(column_to_arrange_by)
+# Make string of NA values 
+
+na_values <- c("None", "00:00.0")
+
+example_dataframe <- readr::read_tsv("dataframe_original.txt", na = na_values) 
 
 ```
 
@@ -348,6 +353,16 @@ example_dataframe <- original_dataframe %>%
            case_when(example_column > other_column ~"A",
                      is.na(example_column) ~"B")) 
 
+# IMPORTANT NOTE: In experimentation, noticed that case_when() does not perform as expected on certain variables: 
+# Here we expect case_when to provide the median value for years 1950-1955 but it does not; it provides the median values for the site_no. Odd and use with caution. 
+
+test_3 <- ten_years_all %>% 
+  group_by(site_no) %>% 
+  mutate(
+    "50_55_med" = case_when(level_year >= 1950 & level_year <= 1955 ~ median(lev_va))) %>% 
+  filter(!`50_55_med` == "NA") %>% 
+  distinct(id, aquifer, .keep_all = TRUE)
+
 ```
 
 
@@ -438,6 +453,15 @@ new_joined_dataframe <- example_dataframe_x %>%
 
 all_dataframes <- rbind(dataframe_1, dataframe_2, dataframe_3, dataframe_4)
 
+# Use `rbind()` to join a lot of dataframes without typing them out 
+# Make a list of the dataframes using `mget()` and `ls()`: "df_[0-10]" refers to name of dataframes (if all follow common name) 
+
+example_list <-  mget(ls(pattern = "df_[0-10]"))
+
+# Use `do.call()` to call rbind()
+
+all_dataframes <- do.call(rbind, example_list)
+
 ```
 
 ### Parse dataframes 
@@ -470,6 +494,13 @@ write_tsv(file_to_save, here::here("specific_folder", "name_of_file.txt"))
 # Write to csv file
 write_csv(file_to_save, here::here("specific_folder", "name_of_file.txt"))
 
+```
+
+Save graph or visual 
+
+```{r}
+# Save graph or visual 
+ggsave("file_to_save")
 ```
 
 ## Working with Dates
