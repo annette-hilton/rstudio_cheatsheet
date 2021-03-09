@@ -521,6 +521,15 @@ ggplot(data = example_dataframe,
            group = aesthetic_variable_to_group_by)) +
   geom_line() 
 
+# To reverse x or x-axis 
+
++ scale_y_reverse()
++ scale_x_reverse() 
+
+# To flip the entire plot 
+
++ coord_flip() 
+
 ```
 
 Seasonal Plot 
@@ -626,6 +635,43 @@ Disable scientific notation in ggplot
 ```{r}
 # Disable scientific notation of y-axis 
   scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
+
+```
+
+Auto-generate plots & save as PDF 
+
+```{r}
+# Start with a large dataframe that you want to split into multiple plots 
+
+# Use group_split() to indicate separation by desired variable
+
+plot_variable <- all_dataframes%>%
+  group_split(variable)
+
+# Make a function to call each ID/variable as the title of the graph
+
+plots <- function(data){
+
+  plot_name <- data$variable[1]
+
+ggplot(data, aes(x = year, y = estimate)) +
+  geom_point() +
+  scale_y_reverse() +
+  labs(x = "Year",
+       y = "VHG",
+       title = plot_name)
+}
+
+
+selected_plots <- purrr::map(plot_variable, plots)
+
+selected_plots[[1]]
+
+# Save as PDF w/ date auto generated 
+
+pdf(here::here("folder", paste0("title_of_pdf_", Sys.Date(), ".pdf")), height = 11, width = 8.5)
+ggarrange(plotlist = selected_plots, ncol = 1, nrow = 3, align = "v")
+dev.off()
 
 ```
 
