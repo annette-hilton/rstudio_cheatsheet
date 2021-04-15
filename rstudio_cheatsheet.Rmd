@@ -318,6 +318,16 @@ example_dataframe <- original_dataframe %>%
     standard_deviation = sd(example_column)
     )
 
+# Add number column without summarizing data 
+# Use `add_count()` and `add_tally()`
+# `add_count()` is best for counting all rows of a particular group (use group_by first) and will autogenerate a new column titled 'n' 
+# `add_tally()` is best for detailed counts--you can specify to count or not count NA values, for instance 
+
+example_dataframe <- original_dataframe %>% 
+  group_by(column_of_interest) %>% 
+  add_count(column_of_interest) %>% 
+  add_tally(!is.na(column), name = "name_of_new_column")
+
 # `mutate()` for everything else! 
 
 # Duplicate a column (keep everything the same, just rename the column name)
@@ -430,6 +440,21 @@ example_dataframe$example_column <- gsub("character_to_remove", "character_to_ad
 ## Dataframes (Joining dataframes, parsing dataframes, transforming dataframes) 
 
 ### pivot_longer() and pivot_wider()
+
+pivot_longer(): transform data from wide (many columns) to long (many rows) 
+pivot_wider(): transform data from long (many rows) to wide (many columns) 
+
+
+```{r}
+# `pivot_longer()` 
+# There are many specifications that you can add, search pivot for details in help bar
+
+new_dataframe <- example_dataframe %>% 
+  pivot_longer(cols = c(example_column, exacmple_column_2), 
+               names_to = "other_example_column", 
+               values_to = "other_example_column_2")
+```
+
 ### Join dataframes
 
 There are several types of joins, including: 
@@ -526,6 +551,14 @@ ggplot(data = example_dataframe,
 + scale_y_reverse()
 + scale_x_reverse() 
 
+# To limit the x or y axes in a plot 
+
+scale_y_continuous(limits = c(10, -10))
+
+# Combined reverse & limit of axes 
+
+scale_y_reverse(limits = c(10, -10)) 
+
 # To flip the entire plot 
 
 + coord_flip() 
@@ -548,6 +581,7 @@ seasonal_plot <- ggplot(data = steelhead_parsed,
 
 ```{r}
 # Create line graph of Mono Lake Level from 1850-2017 
+# This is from ESM 206 Assignment 3 task 1
 
 # Basic plot 
 
