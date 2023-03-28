@@ -354,6 +354,14 @@ example_dataframe <- original_dataframe %>%
          max_date = max(year), 
          median = median(value))
 
+
+```
+
+# Make conditional statements 
+
+```{r}
+# CASE_WHEN()
+
 # `mutate()` and `case_when()` 
 # Use mutate() and case_when() to make conditional statements 
 # You can make these conditional statements complicated 
@@ -373,6 +381,17 @@ test_3 <- ten_years_all %>%
   filter(!`50_55_med` == "NA") %>% 
   distinct(id, aquifer, .keep_all = TRUE)
 
+# IFELSE() 
+
+# Example from Chap. 1 (CV) 
+# Code for assigning each well to either confined or unconfined 
+# Modern data 
+
+cv_class_mod<- cv_analysis_mod %>% 
+  rowwise() %>%
+  mutate(aquifer = 
+        ifelse(well_depth_va < 492, "unconfined", 
+        ifelse(well_depth_va >= 492, "confined", NA)))
 ```
 
 
@@ -529,6 +548,26 @@ ggsave("file_to_save")
 ```
 
 ## Working with Dates
+
+`Lubridate` is the best package to work with dates 
+
+```{r}
+# First designate that a certain column/values are date/time values 
+# Make new column with dates 
+
+new_date_column = lubridate::parse_date_time(original_date_column, orders = c("ymd", "Y!", "Ym"), train = FALSE)
+
+# Make new colum of decimal dates *use column you made that is a recognized date column (above) 
+    decimal_date = lubridate::decimal_date(new_date_column)
+    
+# Make new column of just month, year, day, hour, year_day *use column you made that is a recognized date column (above)
+    month = lubridate::month(new_date_column, label = TRUE),
+    year = lubridate::year(new_date_column)) 
+    day = day(new_date_column)  
+    hour = hour(new_date_column)  
+    year_day = yday(new_date_column)
+```
+
 
 ## Graphs/Visualization
 
