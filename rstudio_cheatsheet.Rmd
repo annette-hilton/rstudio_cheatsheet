@@ -409,6 +409,17 @@ filter_all()
 filter_if()
 filter_at()
 
+########################################### BE CAREFUL WITH FILTER #######################################################
+
+# If you use `filter()` and want to remove something in a column:
+
+filter(!example_column == "example_thing_to_remove")
+
+# if there are any NAs in that particular column, they will be dropped! To avoid this, you can use: 
+
+filter(!grepl("example_thing_to_remove", example_column))
+
+
 # Filter by string pattern/text (keep)
 
 example_dataframe <- dataframe_original %>% 
